@@ -6,7 +6,7 @@
 
 ## :dart: Objetivo
 
-Desenvolvimento de um sistema de registro, acompanhamento e controle de bugs em projetos, utilizando de React + NextJS + Styled-components para a criação da interface e com deploy na [Vercel], acesso, registro e edição de dados no front-end (View), Python 3 + Django para controle e modelo dos dados do sistema (Model + Controller), utilizando Auth0 para segurança da informação e como banco de dados a utilização do banco de dados não-relacional MongoDB.
+Desenvolvimento de um sistema de registro, acompanhamento e controle de bugs em projetos, utilizando de React + NextJS + Styled-components para a criação da interface e com deploy na [Vercel](https://vercel.com), acesso, registro e edição de dados no front-end (View), Python 3 + Django para controle e modelo dos dados do sistema (Model + Controller), utilizando Auth0 para segurança da informação e como banco de dados a utilização do banco de dados não-relacional MongoDB.
 
 ## :hammer_and_wrench: Ferramentas
 
@@ -36,10 +36,8 @@ Desenvolvimento de um sistema de registro, acompanhamento e controle de bugs em 
 
   <h3>Em Construção.</h3>
 
-## Status do Projeto - Em Desenvolvimento
 
-
-## check_mark: Features Desenvolvidas
+## :exclamation: :exclamation: Features Desenvolvidas
 
 -   [ ] Inserção e Autenticação de Usuário.
 -   [ ] Inserção de novos registros de bugs.
@@ -49,3 +47,4 @@ Desenvolvimento de um sistema de registro, acompanhamento e controle de bugs em 
 -   [ ] Anexo de documentos, Logs, prints de erro.
 -   [ ] Alteração de Status dos registros ("Aberto, "Em Estudo" "corrigido").
 
+## :wrench: Status do Projeto - Em Desenvolvimento :wrench: 
