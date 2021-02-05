@@ -1,7 +1,6 @@
 <div align="center">
   <img src="./src/public/Python_logo_and_wordmark.svg">
-
-	<h1>Bug Catcher - Sistema de Registro de Bugs</h1>
+	Bug Catcher - Sistema de Registro e Controle de Bugs.
 </div>
 
 ## :dart: Objetivo
