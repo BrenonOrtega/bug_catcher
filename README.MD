@@ -1,6 +1,6 @@
 <div align="center">
-	[Alt text]("Python Logo")
-  <img src="./src/public/Python_logo_and_wordmark.svg">
+  [Alt text]("Python Logo")<img src="./src/public/Python_logo_and_wordmark.svg">
+
 	<h1>Bug Catcher - Sistema de Registro de Bugs</h1>
 </div>
 
