@@ -81,11 +81,16 @@ WSGI_APPLICATION = 'bug_catcher.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+     'default': {
+        'ENGINE': os.environ.get('BUG_CATCHER_DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.environ.get('DB_NAME', 'db.sqlite'),    
+        'USER': os.environ.get('DB_USER', ''),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', None),
+        'PORT': os.environ.get('DB_PORT', None),
     }
 }
+
 
 
 # Password validation

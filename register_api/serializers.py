@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Register
+from .models import Error
 
-class RegisterSerializer(serializers.ModelSerializer):
+class ErrorsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Register
-        fields = ['name', 'user', 'email', 'description', 'status', 'date']
+        model = Error
+        fields = ['name', 'slug', 'author', 'email', 'date', 'last_update', 'description', 'status', ]
