@@ -11,22 +11,5 @@ class ErrorSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get(')
-
-
-a = (''' 
-from register_api.models import Error                                           
-from register_api.serializers import ErrorSerializer                            
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser from django.contrib.auth.models import User
-import io          
-b = User.objects.get(id=1)
->>> a = Error(name = 'erro de teste', slug = 'test', author= b, description = "teste testes")
->>> a.save()
->>> serializer = ErrorSerializer(a)
->>> json = JSONRenderer().render(serializer.data) 
->>> stream = io.BytesIO(json)
-
-
-
-''')
+        instance.name = validated_data.get('name', instance.name)
+        #TODO: Replicate instance.field for other fields in Error model.

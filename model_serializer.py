@@ -20,6 +20,6 @@ valid_data = serializer.validated_data if serializer.is_valid() else "not valida
 
 print(valid_data, f'is_valid()? {serializer.is_valid()}')
 
-#   To run from python terminal 
-#   exec(open('../../../model_serializer.py').read())
+#   To run from python terminal using manage.py shell
+#   exec(open('model_serializer.py').read())
 
