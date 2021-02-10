@@ -7,7 +7,7 @@ import io
 
 #instancia um objeto do meu usuário
 user = User.objects.get(id=1) 
-error = Error(name='erro atoa', slug= 'teste6', author=user, email=user.email, description='')
+error = Error(name='erro atoa', slug= 'teste7', author=user, email=user.email, description='')
 error.save()
 serializer = ErrorSerializer(error)
 json = JSONRenderer().render(serializer.data)
