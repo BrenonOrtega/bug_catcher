@@ -16,7 +16,6 @@ class Error(models.Model):
     
     id = models.AutoField(primary_key=True)
     name = models.CharField("Nome do erro", max_length = 100)
-    
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     email = models.EmailField("Email do usuário", max_length=100, blank=True)
     date = models.DateTimeField("data de criação",auto_now_add=True)
@@ -34,9 +33,3 @@ class Error(models.Model):
 
     def __str__(self):
         return "%s criado por %s" %(self.name, self.author)
-
-    def get_absolute_url(self):
-        url_name = self.name
-        
-        return reverse(f'{self.id}', args=(str(url_name).replace(' ', '-')))
-

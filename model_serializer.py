@@ -9,10 +9,10 @@ import io
 user = User.objects.get(id=1) 
 error = Error(name='erro atoa', slug= 'teste7', author=user, email=user.email, description='')
 error.save()
+
 serializer = ErrorSerializer(error)
 json = JSONRenderer().render(serializer.data)
 stream = io.BytesIO(json)
-
 
 data = JSONParser().parse(stream)
 serializer = ErrorSerializer(data=data)
