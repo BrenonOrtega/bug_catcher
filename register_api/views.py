@@ -1,94 +1,103 @@
-from django import http
-from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponse, JsonResponse
-import rest_framework
-from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
-from rest_framework.views import APIView
-from .models import Error
-from .serializers import ErrorSerializer
-from rest_framework.decorators import api_view
+import jwt
+from .models import Bug
+from functools import wraps
+from django.http import JsonResponse
+from django.http.response import Http404
+from django.contrib.auth import get_user
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import permission_classes, api_view
+from .serializers import BugReadSerializer, BugWriteSerializer
 
-class ErrorsList(APIView):
+
+
+class BugList(APIView):
+    @permission_classes("read:messages")
     def get(self, request):
-        errors = Error.objects.all().order_by("id")
-        serializer = ErrorSerializer(errors, many=True)
+        bug = Bug.objects.all()
+        serializer = BugReadSerializer(bug, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @permission_classes('read:messages')
     def post(self, request):
-        serializer = ErrorSerializer(data=request.data)
-        if serializer.is_Valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        author = get_user(request)
+        if author.is_authenticated :
+            serializer = BugWriteSerializer(data = request.data)
+            if serializer.is_valid():
+                serializer.save(author=author)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else: raise Exception("User must be logged in to post.")
 
-
-class ErrorDetails(APIView):
-    def get_object(self, id):
+class BugDetails(APIView):
+    def get_object(self, pk):
         try:
-            return Error.objects.get(id=id)
-        except Error.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        
-    def get(self, request, id):
-        error = self.get_object(id)
-        serializer = ErrorSerializer(error)
-        return Response(serializer.data)
+            bug_object = Bug.objects.get(pk=pk)
+            return bug_object
+        except:
+            raise Http404
 
-    def put(self, request, id):
-        error = self.get_object(id)
-        serializer = ErrorSerializer(error, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, id):
-        error = self.get_object(id)
-        serializer = ErrorSerializer(error, data=request.data)
-        
-
-# Create your views here.
-
-'''
-@api_view(['GET', 'POST'])
-def ErrorsList(request):
-    if request.method == 'GET':
-        errors = Error.objects.all()
-        serializer = ErrorSerializer(errors, many=True)
+    def get(self, request, pk):
+        bug = self.get_object(pk)
+        serializer = BugReadSerializer(bug)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == 'POST':
-        serializer = ErrorSerializer(data=request.data)
-
+    @permission_classes(['read:messages', 'write:messages'])
+    def put(self, request, pk):
+        bug = self.get_object(pk)
+        serializer = BugWriteSerializer(bug, request.data)
+        modifier = get_user(request)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
-@api_view(["GET", "PUT", "DELETE"])
-def ErrorDetail(request, pk):
-    try:
-        error = Error.objects.get(pk=pk)
-    except Error.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+def get_token_auth_header(request):
+    #Obtains the Access Token from the Authorization Header
+    auth = request.META.get("HTTP_AUTHORIZATION", None)
+    parts = auth.split()
+    token = parts[1]
+    return token
 
-    if request.method == 'GET':
-        serializer = ErrorSerializer(error)
-        return Response(serializer.data)
+def requires_scope(required_scope):
+    """Determines if the required scope is present in the Access Token
+    Args:
+        required_scope (str): The scope required to access the resource
+    """
+    def require_scope(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = get_token_auth_header(args[0])
+            decoded = jwt.decode(token, verify=False)
+            if decoded.get("scope"):
+                token_scopes = decoded["scope"].split()
+                for token_scope in token_scopes:
+                    if token_scope == required_scope:
+                        return f(*args, **kwargs)
+            response = JsonResponse({'message': 'You don\'t have access to this resource'})
+            response.status_code = 403
+            return response
+        return decorated
+    return require_scope
 
-    elif request.method == 'PUT':
-        serializer = ErrorSerializer(error, data=request.data, partial=True)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+###################################################################################################
+#Teste#######################################
+@api_view(['GET'])
+@requires_scope('read:messages')
+def private_scoped(request):
+    return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.'})
 
-    elif request.method == 'DELETE':
-        error.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    '''
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public(request):
+    return JsonResponse({'message': 'Hello from a public endpoint! You don\'t need to be authenticated to see this.'})
+
+
+@api_view(['GET'])
+def private(request):
+    return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated to see this.'})

@@ -1,10 +1,6 @@
 from django.contrib import admin
-from .models import Error
+from .models import Bug
 
-@admin.register(Error)
-class ErrorModel(admin.ModelAdmin):
-    list_filter = ('name', 'author', 'date')
-
-    #list_display = {'date'}
-    #date_hierarchy = ...
-    #ordering = ...
+@admin.register(Bug)
+class BugModel(admin.ModelAdmin):
+    list_filter = ['date', 'last_update']

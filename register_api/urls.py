@@ -1,12 +1,14 @@
 from django.urls import path
-from rest_framework.exceptions import ErrorDetail
-""" from .views import ErrorDetail, ErrorsList """
 from register_api import views
 
 urlpatterns = [
-    #path('errors', ErrorsList),
-    #path('errors/<int:pk>', ErrorDetail) 
-    path('errors', views.ErrorsList.as_view()),
-    path('errors/<int:id>', views.ErrorDetails.as_view())
+    path('bugs', views.BugList.as_view()),
+    path('bugs/<int:pk>/', views.BugDetails.as_view()),
+
+
+    path('api/public', views.public),
+    path('api/private', views.private),
+    path('api/private-scoped', views.private_scoped)
 ]
+
 

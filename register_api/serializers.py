@@ -1,10 +1,12 @@
 from rest_framework import serializers
-from .models import Error
+from .models import Bug
 
-class ErrorSerializer(serializers.ModelSerializer):
+class BugWriteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Error
-        fields = '__all__'
+        model = Bug
+        fields = ['bug_name', 'description', 'status']
 
-        
-
+class BugReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bug
+        exclude = ['id']
