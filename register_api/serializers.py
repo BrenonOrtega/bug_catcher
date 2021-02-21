@@ -14,7 +14,6 @@ class BugReadSerializer(serializers.ModelSerializer):
         fields = "__all__"
         #exclude = ['id']
 
-
 class UserReadSerializer(serializers.ModelSerializer):
     bugs = BugReadSerializer(many=True, read_only=True)
 

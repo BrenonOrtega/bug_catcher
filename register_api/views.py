@@ -16,10 +16,10 @@ class BugList(APIView):
         serializer = BugReadSerializer(bug, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        serializer = BugWriteSerializer(data=request.data)
+    """ def post(self, request):
+        serializer = BugWriteSerializer(data=request.data) """
 
-    """def post(self, request):
+    def post(self, request):
         author = get_user(request)
 
         if author.is_authenticated :
@@ -28,7 +28,7 @@ class BugList(APIView):
                 serializer.save(author=author)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else: return Response(status=status.HTTP_403_FORBIDDEN) """
+        else: return Response(status=status.HTTP_403_FORBIDDEN)
 
 class BugDetails(APIView, mixins.DestroyModelMixin):
     def get_object(self, pk):
@@ -60,9 +60,7 @@ class BugDetails(APIView, mixins.DestroyModelMixin):
 class BugListPage(View):
     def get(self, request):
         bugs = Bug.objects.all()
-        print(bugs)
         context = {"bugs": bugs}
-        print(context)
         return render(request, "home.html", context)
 
 
