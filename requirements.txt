@@ -1,5 +1,7 @@
 cryptography
 django-cors-headers
-drf-jwt
-pyjwt
+pyjwt 
 requests
+social-auth-app-django
+python-jose
+python-dotenv

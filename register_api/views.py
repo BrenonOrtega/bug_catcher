@@ -1,26 +1,17 @@
-import jwt
-from .models import Bug
-from functools import wraps
-from django.http import JsonResponse
 from django.http.response import Http404
 from django.contrib.auth import get_user
 from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework.views import APIView, View
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from rest_framework.decorators import permission_classes, api_view
 from .serializers import BugReadSerializer, BugWriteSerializer
-
-
+from .models import Bug
 
 class BugList(APIView):
-    @permission_classes("read:messages")
     def get(self, request):
         bug = Bug.objects.all()
         serializer = BugReadSerializer(bug, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @permission_classes('read:messages')
     def post(self, request):
         author = get_user(request)
         if author.is_authenticated :
@@ -29,7 +20,7 @@ class BugList(APIView):
                 serializer.save(author=author)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else: raise Exception("User must be logged in to post.")
+        else: return Response(status=status.HTTP_403_FORBIDDEN)
 
 class BugDetails(APIView):
     def get_object(self, pk):
@@ -44,60 +35,51 @@ class BugDetails(APIView):
         serializer = BugReadSerializer(bug)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @permission_classes(['read:messages', 'write:messages'])
     def put(self, request, pk):
         bug = self.get_object(pk)
         serializer = BugWriteSerializer(bug, request.data)
         modifier = get_user(request)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-
-def get_token_auth_header(request):
-    #Obtains the Access Token from the Authorization Header
-    auth = request.META.get("HTTP_AUTHORIZATION", None)
-    parts = auth.split()
-    token = parts[1]
-    return token
-
-def requires_scope(required_scope):
-    """Determines if the required scope is present in the Access Token
-    Args:
-        required_scope (str): The scope required to access the resource
-    """
-    def require_scope(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            token = get_token_auth_header(args[0])
-            decoded = jwt.decode(token, verify=False)
-            if decoded.get("scope"):
-                token_scopes = decoded["scope"].split()
-                for token_scope in token_scopes:
-                    if token_scope == required_scope:
-                        return f(*args, **kwargs)
-            response = JsonResponse({'message': 'You don\'t have access to this resource'})
-            response.status_code = 403
-            return response
-        return decorated
-    return require_scope
+        if modifier.is_authenticated:
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else: return Response(status=status.HTTP_403_FORBIDDEN)
 
 
-###################################################################################################
-#Teste#######################################
-@api_view(['GET'])
-@requires_scope('read:messages')
-def private_scoped(request):
-    return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.'})
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def public(request):
-    return JsonResponse({'message': 'Hello from a public endpoint! You don\'t need to be authenticated to see this.'})
+#####################################################################################
+from django.shortcuts import render, redirect
+from django.views.generic import View
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout as log_out
+from urllib.parse import urlencode
+from django.conf import settings
+from django.http import HttpResponseRedirect
 
+# Create your views here.
+def index(request):
+    user = request.user
+    if user.is_authenticated:
+        return redirect("/bugs")
+    else:
+        return render(request, "index.html")
 
-@api_view(['GET'])
-def private(request):
-    return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated to see this.'})
+def logout(request):
+    log_out(request)
+    return_to = urlencode({"returnTo": request.build_absolute_uri("/")})
+    logout_url = "https://{}/v2/logout?client_id={}&{}".format(
+        settings.SOCIAL_AUTH_AUTH0_DOMAIN, settings.SOCIAL_AUTH_AUTH0_KEY, return_to,
+    )
+    return HttpResponseRedirect(logout_url)
+
+@method_decorator(login_required, name='get')
+class BugListView(View):
+    def get(self, request):
+        bugs = Bug.objects.all()
+        print(bugs)
+        context = {"bugs": bugs}
+        print(context)
+        return render(request, "home.html", context)

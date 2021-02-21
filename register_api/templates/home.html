@@ -1,0 +1,13 @@
+<html> 
+    <body> 
+        <h1>hey i'm being called!</h1>
+        {% for i in bugs %} 
+            <h4>{{i.id}}: {{ i.bug_name}}</h4> 
+            <h5>Criador:{{i.author}} </h5> 
+            <p>Descrição:{{ i.description }}</p> 
+            <p>Status:{{ i.status }}</p>
+            <p>Data de criação:{{ i.date}}</p> 
+            <p>Ultima atualização:{{ i.last_update}}</p> 
+        {% endfor %} 
+    </body> 
+</html>
