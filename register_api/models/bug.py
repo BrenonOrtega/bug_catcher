@@ -1,9 +1,5 @@
-from django.contrib.auth import get_user
 from django.db import models
-from django.conf import Settings, settings
-from django.urls import reverse
-from rest_framework.fields import ReadOnlyField
-
+from django.conf import settings
 
 # Create your models here.
 
@@ -24,7 +20,7 @@ class Bug(models.Model):
     description = models.TextField("Descrição do Bug", blank=True)
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        related_name="Bug",
+        related_name="bugs",
         on_delete=models.CASCADE
     ) 
     status = models.CharField(
@@ -36,6 +32,7 @@ class Bug(models.Model):
 
     class Meta:
         verbose_name_plural = "Bugs"
+        ordering = ["id"]
 
     def __str__(self):
         return f"{self.bug_name} criado por {self.author} em {self.date}, ultima atualização:{self.last_update}"

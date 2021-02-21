@@ -1,11 +1,13 @@
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.http.response import Http404
-from django.contrib.auth import get_user
+from django.contrib.auth import get_user 
 from django.shortcuts import render
-from rest_framework import status
+from rest_framework import status, mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView, View
 from .models import Bug
-from .serializers import BugReadSerializer, BugWriteSerializer
+from .serializers import BugReadSerializer, BugWriteSerializer, UserReadSerializer
 
 
 class BugList(APIView):
@@ -15,16 +17,20 @@ class BugList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        serializer = BugWriteSerializer(data=request.data)
+
+    """def post(self, request):
         author = get_user(request)
+
         if author.is_authenticated :
             serializer = BugWriteSerializer(data = request.data)
             if serializer.is_valid():
                 serializer.save(author=author)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else: return Response(status=status.HTTP_403_FORBIDDEN)
+        else: return Response(status=status.HTTP_403_FORBIDDEN) """
 
-class BugDetails(APIView):
+class BugDetails(APIView, mixins.DestroyModelMixin):
     def get_object(self, pk):
         try:
             bug_object = Bug.objects.get(pk=pk)
@@ -58,3 +64,11 @@ class BugListPage(View):
         context = {"bugs": bugs}
         print(context)
         return render(request, "home.html", context)
+
+
+class GetUserBugs(APIView):
+    def get(self, request):
+        user = User.objects.all()
+        serializer = UserReadSerializer(user, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
