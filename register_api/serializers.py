@@ -19,4 +19,4 @@ class UserReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username", "email", "bugs")
+        fields = "_all__"

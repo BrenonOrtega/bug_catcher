@@ -1,6 +1,11 @@
 #Virtual Environment
 /.env
 
+#vscode settings
 /.vscode
 
-/passo_a_passo.txt
+#Texto de passo a passo
+#passo_a_passo.txt
+
+#bytecode python
+/*.pyc

@@ -1,3 +1,5 @@
+django 
+djangorestframework
 cryptography
 django-cors-headers
 pyjwt 
